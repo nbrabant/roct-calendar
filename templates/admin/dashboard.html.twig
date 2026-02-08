@@ -1,0 +1,74 @@
+{% extends '@EasyAdmin/layout.html.twig' %}
+
+{% block content_title %}Dashboard{% endblock %}
+
+{% block main %}
+    <div class="row">
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card dashboard-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="dashboard-card-icon" style="background-color: #6366f1;">
+                            <i class="fa fa-tags"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h3 class="dashboard-card-value">{{ playerCategoryCount }}</h3>
+                            <span class="dashboard-card-label">Player Categories</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="{{ playerCategoryUrl }}" class="dashboard-card-link">
+                        View all <i class="fa fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .dashboard-card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            transition: box-shadow 0.2s ease;
+        }
+        .dashboard-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+        .dashboard-card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        .dashboard-card-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0;
+            line-height: 1;
+        }
+        .dashboard-card-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .dashboard-card .card-footer {
+            background: none;
+            border-top: 1px solid var(--border-color, #e9ecef);
+            padding: 0.75rem 1.25rem;
+        }
+        .dashboard-card-link {
+            font-size: 0.85rem;
+            text-decoration: none;
+            color: var(--link-color, #6366f1);
+        }
+        .dashboard-card-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+{% endblock %}
