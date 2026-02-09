@@ -15,4 +15,14 @@ class SeasonRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Season::class);
     }
+
+    public function findCurrent(): ?Season
+    {
+        return $this->createQueryBuilder('s')
+            ->where('s.startDate <= :now')
+            ->andWhere('s.endDate >= :now')
+            ->setParameter('now', new \DateTime('today'))
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Calendrier ROCT{% endblock %}
+
+{% block body %}
+    {% if season %}
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Saison {{ season }}</h1>
+            <p class="text-gray-500 mt-1">Calendrier des événements</p>
+        </div>
+
+        {% if events is not empty %}
+            <div class="grid gap-4">
+                {% for event in events %}
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                            <div class="flex-shrink-0 text-center sm:text-left">
+                                <div class="text-sm font-semibold text-gray-400 uppercase">
+                                    {{ event.eventDate|date('D') }}
+                                </div>
+                                <div class="text-2xl font-bold text-gray-800">
+                                    {{ event.eventDate|date('d') }}
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    {{ event.eventDate|date('M Y') }}
+                                </div>
+                            </div>
+
+                            <div class="hidden sm:block w-px h-12 bg-gray-200"></div>
+
+                            <div class="flex-1 min-w-0">
+                                <div class="flex flex-wrap items-center gap-2 mb-1">
+                                    <h2 class="text-lg font-semibold text-gray-800">{{ event.name }}</h2>
+                                    <span class="inline-block text-xs font-medium text-white px-2.5 py-0.5 rounded-full"
+                                          style="background-color: {{ event.type.color }};">
+                                        {{ event.type.label }}
+                                    </span>
+                                </div>
+                                {% if event.description %}
+                                    <p class="text-gray-500 text-sm leading-relaxed">{{ event.description }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+                <p class="text-gray-400 text-lg">Aucun événement pour cette saison.</p>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+            <p class="text-gray-400 text-lg">Aucune saison en cours.</p>
+        </div>
+    {% endif %}
+{% endblock %}
