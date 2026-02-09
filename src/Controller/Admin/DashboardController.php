@@ -50,7 +50,8 @@ class DashboardController extends AbstractDashboardController
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
-            ->setTitle('Roct Calendar');
+            ->setTitle('Roct Calendar')
+            ->setFaviconPath('favicon.ico');
     }
 
     public function configureMenuItems(): iterable

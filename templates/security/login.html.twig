@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Roct Calendar</title>
+    <link rel="shortcut icon" href="/favicon.ico">
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         body {
@@ -66,10 +67,21 @@
             padding: 0.75rem;
             margin-bottom: 1rem;
         }
+        #card-logo {
+            width: 30%;
+            margin: 0 auto;
+        }
+        #card-logo img {
+            max-width: 100%;
+        }
     </style>
 </head>
 <body>
     <div class="login-card">
+        <div id="card-logo">
+            <img src="{{ asset('images/logo.png') }}" alt="Logo ROCT">
+        </div>
+
         <h1>Roct Calendar</h1>
 
         {% if error %}
