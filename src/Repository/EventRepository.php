@@ -29,4 +29,39 @@ class EventRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @param int[]|null $categoryIds
+     * @return Event[]
+     */
+    public function findBySeasonFiltered(
+        Season $season,
+        ?array $categoryIds = null,
+        ?\DateTimeInterface $dateFrom = null,
+        ?\DateTimeInterface $dateTo = null,
+    ): array {
+        $qb = $this->createQueryBuilder('e')
+            ->where('e.season = :season')
+            ->setParameter('season', $season);
+
+        if ($categoryIds) {
+            $qb->join('e.categories', 'c')
+                ->andWhere('c.id IN (:categoryIds)')
+                ->setParameter('categoryIds', $categoryIds);
+        }
+
+        if ($dateFrom) {
+            $qb->andWhere('e.eventDate >= :dateFrom')
+                ->setParameter('dateFrom', $dateFrom);
+        }
+
+        if ($dateTo) {
+            $qb->andWhere('e.eventDate <= :dateTo')
+                ->setParameter('dateTo', $dateTo);
+        }
+
+        return $qb->orderBy('e.eventDate', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

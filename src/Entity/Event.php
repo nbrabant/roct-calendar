@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Enum\EventType;
 use App\Repository\EventRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -30,6 +32,16 @@ class Event
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $eventDate = null;
+
+    /** @var Collection<int, PlayerCategory> */
+    #[ORM\ManyToMany(targetEntity: PlayerCategory::class)]
+    #[ORM\JoinTable(name: 'event_player_category')]
+    private Collection $categories;
+
+    public function __construct()
+    {
+        $this->categories = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -92,6 +104,28 @@ class Event
     public function setEventDate(\DateTimeInterface $eventDate): static
     {
         $this->eventDate = $eventDate;
+
+        return $this;
+    }
+
+    /** @return Collection<int, PlayerCategory> */
+    public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function addCategory(PlayerCategory $category): static
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(PlayerCategory $category): static
+    {
+        $this->categories->removeElement($category);
 
         return $this;
     }

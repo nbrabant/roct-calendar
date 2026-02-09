@@ -41,5 +41,7 @@ class EventCrudController extends AbstractCrudController
             ));
         yield AssociationField::new('season');
         yield DateField::new('eventDate', 'Event Date');
+        yield AssociationField::new('categories')
+            ->setFormTypeOption('by_reference', false);
     }
 }

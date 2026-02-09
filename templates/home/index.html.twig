@@ -9,6 +9,51 @@
             <p class="text-gray-500 mt-1">Calendrier des événements</p>
         </div>
 
+        <form method="GET" action="{{ path('app_home') }}" class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-end gap-4">
+                {% if categories is not empty %}
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Catégories</label>
+                        <div class="flex flex-wrap gap-2">
+                            {% for category in categories %}
+                                <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                                    <input type="checkbox" name="categories[]" value="{{ category.id }}"
+                                           class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                           {{ category.id in selectedCategories ? 'checked' }}>
+                                    <span class="text-sm text-gray-700">{{ category.code }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div>
+                    <label for="date_from" class="block text-sm font-medium text-gray-700 mb-2">Du</label>
+                    <input type="date" id="date_from" name="date_from" value="{{ dateFrom }}"
+                           class="rounded-lg border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label for="date_to" class="block text-sm font-medium text-gray-700 mb-2">Au</label>
+                    <input type="date" id="date_to" name="date_to" value="{{ dateTo }}"
+                           class="rounded-lg border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div class="flex gap-2">
+                    <button type="submit"
+                            class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                        Filtrer
+                    </button>
+                    {% if selectedCategories or dateFrom or dateTo %}
+                        <a href="{{ path('app_home') }}"
+                           class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors">
+                            Réinitialiser
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+
         {% if events is not empty %}
             <div class="grid gap-4">
                 {% for event in events %}
@@ -35,6 +80,11 @@
                                           style="background-color: {{ event.type.color }};">
                                         {{ event.type.label }}
                                     </span>
+                                    {% for category in event.categories %}
+                                        <span class="inline-block text-xs font-medium text-gray-600 bg-gray-100 px-2.5 py-0.5 rounded-full">
+                                            {{ category.code }}
+                                        </span>
+                                    {% endfor %}
                                 </div>
                                 {% if event.description %}
                                     <p class="text-gray-500 text-sm leading-relaxed">{{ event.description }}</p>
