@@ -3,7 +3,9 @@
 namespace App\Controller\Admin;
 
 use App\Entity\PlayerCategory;
+use App\Entity\Season;
 use App\Repository\PlayerCategoryRepository;
+use App\Repository\SeasonRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -16,6 +18,7 @@ class DashboardController extends AbstractDashboardController
 {
     public function __construct(
         private PlayerCategoryRepository $playerCategoryRepository,
+        private SeasonRepository $seasonRepository,
         private AdminUrlGenerator $adminUrlGenerator,
     ) {
     }
@@ -26,6 +29,11 @@ class DashboardController extends AbstractDashboardController
             'playerCategoryCount' => $this->playerCategoryRepository->count(),
             'playerCategoryUrl' => $this->adminUrlGenerator
                 ->setController(PlayerCategoryCrudController::class)
+                ->setAction('index')
+                ->generateUrl(),
+            'seasonCount' => $this->seasonRepository->count(),
+            'seasonUrl' => $this->adminUrlGenerator
+                ->setController(SeasonCrudController::class)
                 ->setAction('index')
                 ->generateUrl(),
         ]);
@@ -41,5 +49,6 @@ class DashboardController extends AbstractDashboardController
     {
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
         yield MenuItem::linkToCrud('Player Categories', 'fa fa-tags', PlayerCategory::class);
+        yield MenuItem::linkToCrud('Seasons', 'fa fa-calendar', Season::class);
     }
 }
