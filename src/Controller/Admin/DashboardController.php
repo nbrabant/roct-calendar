@@ -59,5 +59,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Player Categories', 'fa fa-tags', PlayerCategory::class);
         yield MenuItem::linkToCrud('Seasons', 'fa fa-calendar', Season::class);
         yield MenuItem::linkToCrud('Events', 'fa fa-futbol', Event::class);
+        yield MenuItem::section();
+        yield MenuItem::linkToLogout('Logout', 'fa fa-sign-out');
     }
 }
