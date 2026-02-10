@@ -12,14 +12,27 @@
         <form method="GET" action="{{ path('app_home') }}" class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mb-6">
             <div class="flex flex-col sm:flex-row sm:items-end gap-4">
                 {% if categories is not empty %}
-                    <div class="flex-1">
+                    <div class="flex-1 relative" id="multiselect">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Catégories</label>
-                        <div class="flex flex-wrap gap-2">
+                        <div id="multiselect-trigger"
+                             class="w-full min-h-[38px] px-3 py-1.5 border border-gray-300 rounded-lg bg-white cursor-pointer flex flex-wrap items-center gap-1.5"
+                             onclick="document.getElementById('multiselect-panel').classList.toggle('hidden')">
                             {% for category in categories %}
-                                <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                                {% if category.id in selectedCategories %}
+                                    <span class="inline-flex items-center gap-1 bg-red-100 text-red-700 text-xs font-medium px-2 py-0.5 rounded-full">
+                                        {{ category.code }}
+                                    </span>
+                                {% endif %}
+                            {% endfor %}
+                            <span id="multiselect-placeholder" class="text-sm text-gray-400 {{ selectedCategories ? 'hidden' : '' }}">Toutes les catégories</span>
+                        </div>
+                        <div id="multiselect-panel" class="hidden absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg py-1 max-h-60 overflow-y-auto">
+                            {% for category in categories %}
+                                <label class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer">
                                     <input type="checkbox" name="categories[]" value="{{ category.id }}"
                                            class="rounded border-gray-300 text-red-600 focus:ring-red-500"
-                                           {{ category.id in selectedCategories ? 'checked' }}>
+                                           {{ category.id in selectedCategories ? 'checked' }}
+                                           onchange="updateMultiselect()">
                                     <span class="text-sm text-gray-700">{{ category.code }}</span>
                                 </label>
                             {% endfor %}
@@ -162,14 +175,45 @@
     </div>
 
     <script>
-        // Close export dropdown when clicking outside
+        // Close dropdowns when clicking outside
         document.addEventListener('click', function(e) {
             const dropdown = document.getElementById('export-dropdown');
             const menu = document.getElementById('export-menu');
             if (dropdown && menu && !dropdown.contains(e.target)) {
                 menu.classList.add('hidden');
             }
+            const multiselect = document.getElementById('multiselect');
+            const panel = document.getElementById('multiselect-panel');
+            if (multiselect && panel && !multiselect.contains(e.target)) {
+                panel.classList.add('hidden');
+            }
         });
+
+        function updateMultiselect() {
+            const trigger = document.getElementById('multiselect-trigger');
+            const placeholder = document.getElementById('multiselect-placeholder');
+            const checkboxes = document.querySelectorAll('#multiselect-panel input[type="checkbox"]');
+
+            // Remove existing tags
+            trigger.querySelectorAll('span:not(#multiselect-placeholder)').forEach(function(el) { el.remove(); });
+
+            var hasSelection = false;
+            checkboxes.forEach(function(cb) {
+                if (cb.checked) {
+                    hasSelection = true;
+                    var tag = document.createElement('span');
+                    tag.className = 'inline-flex items-center gap-1 bg-red-100 text-red-700 text-xs font-medium px-2 py-0.5 rounded-full';
+                    tag.textContent = cb.parentElement.querySelector('span').textContent;
+                    trigger.insertBefore(tag, placeholder);
+                }
+            });
+
+            if (hasSelection) {
+                placeholder.classList.add('hidden');
+            } else {
+                placeholder.classList.remove('hidden');
+            }
+        }
 
         function openIcalModal() {
             document.getElementById('export-menu').classList.add('hidden');
