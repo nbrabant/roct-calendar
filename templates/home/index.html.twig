@@ -44,10 +44,25 @@
                             class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
                         Filtrer
                     </button>
-                    <a href="{{ path('app_export_pdf', app.request.query.all) }}"
-                       class="px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors">
-                        Exporter PDF
-                    </a>
+                    <div class="relative" id="export-dropdown">
+                        <button type="button" onclick="document.getElementById('export-menu').classList.toggle('hidden')"
+                                class="px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors inline-flex items-center gap-1">
+                            Exporter
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div id="export-menu" class="hidden absolute right-0 mt-1 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-10 py-1">
+                            <a href="{{ path('app_export_pdf', app.request.query.all) }}"
+                               class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                Exporter en PDF
+                            </a>
+                            <button type="button" onclick="openIcalModal()"
+                                    class="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                Lien iCal (Google Agenda)
+                            </button>
+                        </div>
+                    </div>
                     {% if selectedCategories or dateFrom or dateTo %}
                         <a href="{{ path('app_home') }}"
                            class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors">
@@ -108,4 +123,77 @@
             <p class="text-gray-400 text-lg">Aucune saison en cours.</p>
         </div>
     {% endif %}
+
+    {# iCal modal #}
+    <div id="ical-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+        <div class="bg-white rounded-xl shadow-xl max-w-lg w-full mx-4 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Synchroniser avec Google Agenda</h3>
+                <button type="button" onclick="closeIcalModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <p class="text-sm text-gray-600 mb-4">
+                Copiez ce lien et ajoutez-le dans Google Agenda via
+                <strong>Autres agendas (+) &rarr; À partir de l'URL</strong>.
+                Les événements se synchroniseront automatiquement.
+            </p>
+
+            <div class="flex gap-2">
+                <input type="text" id="ical-url" readonly
+                       value="{{ url('app_export_ical', app.request.query.all) }}"
+                       class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-700 select-all focus:outline-none focus:ring-2 focus:ring-red-500">
+                <button type="button" onclick="copyIcalUrl()"
+                        class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors whitespace-nowrap">
+                    Copier
+                </button>
+            </div>
+
+            <p id="ical-copied" class="hidden text-sm text-green-600 mt-2">Lien copié !</p>
+
+            <div class="mt-4 pt-4 border-t border-gray-100">
+                <a href="{{ url('app_export_ical', app.request.query.all) }}"
+                   class="text-sm text-red-600 hover:underline">
+                    Télécharger le fichier .ics
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Close export dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('export-dropdown');
+            const menu = document.getElementById('export-menu');
+            if (dropdown && menu && !dropdown.contains(e.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+
+        function openIcalModal() {
+            document.getElementById('export-menu').classList.add('hidden');
+            document.getElementById('ical-modal').classList.remove('hidden');
+        }
+
+        function closeIcalModal() {
+            document.getElementById('ical-modal').classList.add('hidden');
+            document.getElementById('ical-copied').classList.add('hidden');
+        }
+
+        // Close modal on backdrop click
+        document.getElementById('ical-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeIcalModal();
+        });
+
+        function copyIcalUrl() {
+            const input = document.getElementById('ical-url');
+            navigator.clipboard.writeText(input.value).then(function() {
+                document.getElementById('ical-copied').classList.remove('hidden');
+                setTimeout(function() {
+                    document.getElementById('ical-copied').classList.add('hidden');
+                }, 3000);
+            });
+        }
+    </script>
 {% endblock %}

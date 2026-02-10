@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Repository\EventRepository;
 use App\Repository\PlayerCategoryRepository;
 use App\Repository\SeasonRepository;
+use App\Entity\Event;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -50,6 +51,64 @@ class HomeController extends AbstractController
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="calendrier-roct.pdf"',
         ]);
+    }
+
+    #[Route('/calendar.ics', name: 'app_export_ical')]
+    public function exportIcal(
+        Request $request,
+        SeasonRepository $seasonRepository,
+        EventRepository $eventRepository,
+        PlayerCategoryRepository $playerCategoryRepository,
+    ): Response {
+        $filterData = $this->getFilteredEvents($request, $seasonRepository, $eventRepository, $playerCategoryRepository);
+
+        $ical = "BEGIN:VCALENDAR\r\n";
+        $ical .= "VERSION:2.0\r\n";
+        $ical .= "PRODID:-//ROCT Calendar//FR\r\n";
+        $ical .= "CALSCALE:GREGORIAN\r\n";
+        $ical .= "METHOD:PUBLISH\r\n";
+        $ical .= "X-WR-CALNAME:ROCT Calendar\r\n";
+
+        /** @var Event $event */
+        foreach ($filterData['events'] as $event) {
+            $uid = $event->getId() . '@roct-calendar';
+            $dtstart = $event->getEventDate()->format('Ymd');
+            $summary = $this->escapeIcalText($event->getName());
+            $description = $event->getDescription() ? $this->escapeIcalText($event->getDescription()) : '';
+            $categories = [];
+            foreach ($event->getCategories() as $category) {
+                $categories[] = $this->escapeIcalText((string) $category);
+            }
+
+            $ical .= "BEGIN:VEVENT\r\n";
+            $ical .= "UID:{$uid}\r\n";
+            $ical .= "DTSTART;VALUE=DATE:{$dtstart}\r\n";
+            $ical .= "SUMMARY:{$summary}\r\n";
+            if ($description !== '') {
+                $ical .= "DESCRIPTION:{$description}\r\n";
+            }
+            if ($categories !== []) {
+                $ical .= 'CATEGORIES:' . implode(',', $categories) . "\r\n";
+            }
+            $ical .= "END:VEVENT\r\n";
+        }
+
+        $ical .= "END:VCALENDAR\r\n";
+
+        return new Response($ical, 200, [
+            'Content-Type' => 'text/calendar; charset=utf-8',
+            'Content-Disposition' => 'inline; filename="roct-calendar.ics"',
+        ]);
+    }
+
+    private function escapeIcalText(string $text): string
+    {
+        $text = str_replace('\\', '\\\\', $text);
+        $text = str_replace("\n", '\\n', $text);
+        $text = str_replace(',', '\\,', $text);
+        $text = str_replace(';', '\\;', $text);
+
+        return $text;
     }
 
     /**
