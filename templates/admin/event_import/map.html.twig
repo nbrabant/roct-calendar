@@ -1,0 +1,78 @@
+{% extends '@EasyAdmin/layout.html.twig' %}
+
+{% block page_title %}Mapping des colonnes{% endblock %}
+
+{% block main %}
+<div class="row">
+    <div class="col-12">
+        {% for flash in app.flashes('danger') %}
+            <div class="alert alert-danger">{{ flash }}</div>
+        {% endfor %}
+
+        <form method="post">
+            <input type="hidden" name="_token" value="{{ csrf_token('event_import_map') }}">
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Correspondance des colonnes</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% for header in headers %}
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">{{ header }}</label>
+                                <select name="mapping[{{ header }}]" class="form-select">
+                                    <option value="">-- Ignorer --</option>
+                                    {% for field, config in field_map %}
+                                        <option value="{{ field }}">
+                                            {{ config.label }}{% if config.required %} *{% endif %}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-2 text-muted">
+                        <small>* Champs requis</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Aperçu des données</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-sm">
+                            <thead>
+                                <tr>
+                                    {% for header in headers %}
+                                        <th>{{ header }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in preview_rows %}
+                                    <tr>
+                                        {% for header in headers %}
+                                            <td>{{ row[header] ?? '' }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-file-import me-1"></i> Importer les événements
+                </button>
+                <a href="{{ path('admin_event_import_upload') }}" class="btn btn-secondary">Retour</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

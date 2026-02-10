@@ -44,6 +44,10 @@
                             class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
                         Filtrer
                     </button>
+                    <a href="{{ path('app_export_pdf', app.request.query.all) }}"
+                       class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors">
+                        Exporter PDF
+                    </a>
                     {% if selectedCategories or dateFrom or dateTo %}
                         <a href="{{ path('app_home') }}"
                            class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors">

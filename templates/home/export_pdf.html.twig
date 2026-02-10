@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Calendrier ROCT</title>
+    <style>
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 12px;
+            color: #1f2937;
+            margin: 30px;
+        }
+        h1 {
+            font-size: 20px;
+            margin: 0 0 5px 0;
+        }
+        .subtitle {
+            font-size: 12px;
+            color: #6b7280;
+            margin: 0 0 20px 0;
+        }
+        .filters {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 15px;
+            padding: 8px 10px;
+            background-color: #f3f4f6;
+            border-radius: 4px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background-color: #1f2937;
+            color: #ffffff;
+            text-align: left;
+            padding: 8px 10px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: top;
+        }
+        tr:nth-child(even) td {
+            background-color: #f9fafb;
+        }
+        .type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        .category-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 10px;
+            background-color: #e5e7eb;
+            color: #374151;
+            font-size: 10px;
+            margin-right: 3px;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 10px;
+            color: #9ca3af;
+            text-align: center;
+        }
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: #9ca3af;
+        }
+    </style>
+</head>
+<body>
+    <h1>Calendrier ROCT{% if season %} &mdash; Saison {{ season }}{% endif %}</h1>
+    <p class="subtitle">Calendrier des événements</p>
+
+    {% if selectedCategories is not empty or dateFrom or dateTo %}
+        <div class="filters">
+            <strong>Filtres :</strong>
+            {% if selectedCategories is not empty %}
+                Catégories :
+                {% for category in categories %}
+                    {% if category.id in selectedCategories %}
+                        {{ category.code }}{% if not loop.last %}, {% endif %}
+                    {% endif %}
+                {% endfor %}
+                {% if dateFrom or dateTo %} | {% endif %}
+            {% endif %}
+            {% if dateFrom %}Du {{ dateFrom }}{% endif %}
+            {% if dateTo %} au {{ dateTo }}{% endif %}
+        </div>
+    {% endif %}
+
+    {% if events is not empty %}
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 15%;">Date</th>
+                    <th style="width: 35%;">Nom</th>
+                    <th style="width: 20%;">Type</th>
+                    <th style="width: 30%;">Catégories</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in events %}
+                    <tr>
+                        <td>{{ event.eventDate|date('d/m/Y') }}</td>
+                        <td>{{ event.name }}</td>
+                        <td>
+                            <span class="type-badge" style="background-color: {{ event.type.color }};">
+                                {{ event.type.label }}
+                            </span>
+                        </td>
+                        <td>
+                            {% for category in event.categories %}
+                                <span class="category-badge">{{ category.code }}</span>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="empty">Aucun événement trouvé.</p>
+    {% endif %}
+
+    <div class="footer">
+        Généré le {{ "now"|date('d/m/Y à H:i') }}
+    </div>
+</body>
+</html>
