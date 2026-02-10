@@ -5,6 +5,7 @@ namespace App\Service;
 class ImportResult
 {
     public int $successCount = 0;
+    public int $deletedCount = 0;
 
     /** @var array<int, string> */
     private array $errors = [];

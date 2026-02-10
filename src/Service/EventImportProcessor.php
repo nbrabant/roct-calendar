@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\Event;
 use App\Entity\Season;
 use App\Enum\EventType;
+use App\Repository\EventRepository;
 use App\Repository\PlayerCategoryRepository;
 use App\Repository\SeasonRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -15,7 +16,7 @@ class EventImportProcessor
         'name' => ['label' => 'Nom', 'required' => true],
         'description' => ['label' => 'Description', 'required' => false],
         'type' => ['label' => 'Type', 'required' => true],
-        'season' => ['label' => 'Saison', 'required' => true],
+        'season' => ['label' => 'Saison', 'required' => false],
         'eventDate' => ['label' => 'Date', 'required' => true],
         'categories' => ['label' => 'Catégories', 'required' => false],
     ];
@@ -24,6 +25,7 @@ class EventImportProcessor
         private EntityManagerInterface $em,
         private SeasonRepository $seasonRepository,
         private PlayerCategoryRepository $playerCategoryRepository,
+        private EventRepository $eventRepository,
     ) {
     }
 
@@ -31,14 +33,23 @@ class EventImportProcessor
      * @param iterable<int, array<string, string>> $rows
      * @param array<string, string> $mapping column header => field name
      */
-    public function process(iterable $rows, array $mapping): ImportResult
+    public function process(iterable $rows, array $mapping, Season $season, bool $replace = false): ImportResult
     {
         $result = new ImportResult();
         $reversedMapping = array_flip($mapping);
 
+        if ($replace) {
+            $existingEvents = $this->eventRepository->findBySeason($season);
+            foreach ($existingEvents as $event) {
+                $this->em->remove($event);
+            }
+            $result->deletedCount = count($existingEvents);
+            $this->em->flush();
+        }
+
         foreach ($rows as $rowNumber => $row) {
             try {
-                $event = $this->buildEvent($row, $reversedMapping);
+                $event = $this->buildEvent($row, $reversedMapping, $season);
                 $this->em->persist($event);
                 $result->successCount++;
             } catch (\Throwable $e) {
@@ -57,7 +68,7 @@ class EventImportProcessor
      * @param array<string, string> $row
      * @param array<string, string> $reversedMapping field name => column header
      */
-    private function buildEvent(array $row, array $reversedMapping): Event
+    private function buildEvent(array $row, array $reversedMapping, Season $season): Event
     {
         $event = new Event();
 
@@ -79,10 +90,11 @@ class EventImportProcessor
         $event->setType($this->resolveType(trim($typeValue)));
 
         $seasonValue = $this->getFieldValue('season', $row, $reversedMapping);
-        if ($seasonValue === null || trim($seasonValue) === '') {
-            throw new \RuntimeException('La saison est requise.');
+        if ($seasonValue !== null && trim($seasonValue) !== '') {
+            $event->setSeason($this->resolveSeason(trim($seasonValue)));
+        } else {
+            $event->setSeason($season);
         }
-        $event->setSeason($this->resolveSeason(trim($seasonValue)));
 
         $dateValue = $this->getFieldValue('eventDate', $row, $reversedMapping);
         if ($dateValue === null || trim($dateValue) === '') {

@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Event;
+use App\Repository\SeasonRepository;
 use App\Service\EventImportProcessor;
 use App\Service\SpreadsheetReader;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
@@ -21,6 +22,7 @@ class EventImportController extends AbstractController
         private SpreadsheetReader $reader,
         private EventImportProcessor $processor,
         private AdminUrlGenerator $urlGenerator,
+        private SeasonRepository $seasonRepository,
     ) {
     }
 
@@ -35,6 +37,14 @@ class EventImportController extends AbstractController
         if ($request->isMethod('POST')) {
             if (!$this->isCsrfTokenValid('event_import_upload', $request->request->get('_token'))) {
                 $this->addFlash('danger', 'Jeton CSRF invalide.');
+
+                return $this->redirectToRoute('admin_event_import_upload');
+            }
+
+            $seasonId = $request->request->get('season_id');
+            $season = $seasonId ? $this->seasonRepository->find($seasonId) : null;
+            if ($season === null) {
+                $this->addFlash('danger', 'Veuillez sélectionner une saison.');
 
                 return $this->redirectToRoute('admin_event_import_upload');
             }
@@ -58,25 +68,42 @@ class EventImportController extends AbstractController
             $tempName = uniqid('event_import_') . '.' . $extension;
             $file->move($tempDir, $tempName);
 
-            $request->getSession()->set('event_import_file', $tempDir . '/' . $tempName);
+            $session = $request->getSession();
+            $session->set('event_import_file', $tempDir . '/' . $tempName);
+            $session->set('event_import_season_id', $season->getId());
+            $session->set('event_import_replace', $request->request->getBoolean('replace_import'));
 
             return $this->redirectToRoute('admin_event_import_map');
         }
 
         return $this->render('admin/event_import/upload.html.twig', [
             'events_url' => $eventsUrl,
+            'seasons' => $this->seasonRepository->findAll(),
         ]);
     }
 
     #[Route('/map', name: 'admin_event_import_map', methods: ['GET', 'POST'])]
     public function map(Request $request): Response
     {
-        $filePath = $request->getSession()->get('event_import_file');
+        $session = $request->getSession();
+        $filePath = $session->get('event_import_file');
+
         if ($filePath === null || !file_exists($filePath)) {
             $this->addFlash('danger', 'Aucun fichier à traiter. Veuillez en uploader un.');
 
             return $this->redirectToRoute('admin_event_import_upload');
         }
+
+        $seasonId = $session->get('event_import_season_id');
+        $season = $seasonId ? $this->seasonRepository->find($seasonId) : null;
+
+        if ($season === null) {
+            $this->addFlash('danger', 'Saison introuvable. Veuillez recommencer.');
+
+            return $this->redirectToRoute('admin_event_import_upload');
+        }
+
+        $replaceImport = $session->get('event_import_replace', false);
 
         $headers = $this->reader->readHeaders($filePath);
         $previewRows = $this->reader->readPreviewRows($filePath);
@@ -104,12 +131,15 @@ class EventImportController extends AbstractController
             }
 
             $rows = $this->reader->readAllRows($filePath);
-            $result = $this->processor->process($rows, $activeMappings);
+            $result = $this->processor->process($rows, $activeMappings, $season, $replaceImport);
 
             @unlink($filePath);
-            $request->getSession()->remove('event_import_file');
-            $request->getSession()->set('event_import_result', [
+            $session->remove('event_import_file');
+            $session->remove('event_import_season_id');
+            $session->remove('event_import_replace');
+            $session->set('event_import_result', [
                 'successCount' => $result->successCount,
+                'deletedCount' => $result->deletedCount,
                 'errors' => $result->getErrors(),
             ]);
 
@@ -120,6 +150,8 @@ class EventImportController extends AbstractController
             'headers' => $headers,
             'preview_rows' => $previewRows,
             'field_map' => $fieldMap,
+            'season' => $season,
+            'replace_import' => $replaceImport,
         ]);
     }
 
@@ -140,6 +172,7 @@ class EventImportController extends AbstractController
 
         return $this->render('admin/event_import/results.html.twig', [
             'success_count' => $resultData['successCount'],
+            'deleted_count' => $resultData['deletedCount'] ?? 0,
             'errors' => $resultData['errors'],
             'events_url' => $eventsUrl,
         ]);

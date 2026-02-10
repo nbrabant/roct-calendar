@@ -4,6 +4,16 @@
 
 {% block main %}
 <div class="row mb-4">
+    {% if deleted_count > 0 %}
+        <div class="col-md-4">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <h3 class="text-warning">{{ deleted_count }}</h3>
+                    <p class="mb-0">événement{{ deleted_count > 1 ? 's' : '' }} supprimé{{ deleted_count > 1 ? 's' : '' }}</p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
     <div class="col-md-4">
         <div class="card border-success">
             <div class="card-body text-center">

@@ -9,6 +9,14 @@
             <div class="alert alert-danger">{{ flash }}</div>
         {% endfor %}
 
+        <div class="alert alert-info mb-4">
+            <strong>Saison :</strong> {{ season }}
+            {% if replace_import %}
+                <span class="badge bg-warning text-dark ms-2">Remplacement activé</span>
+                <br><small>Tous les événements existants de cette saison seront supprimés avant l'import.</small>
+            {% endif %}
+        </div>
+
         <form method="post">
             <input type="hidden" name="_token" value="{{ csrf_token('event_import_map') }}">
 
