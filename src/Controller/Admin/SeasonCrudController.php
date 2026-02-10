@@ -18,15 +18,15 @@ class SeasonCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('Season')
-            ->setEntityLabelInPlural('Seasons')
+            ->setEntityLabelInSingular('Saison')
+            ->setEntityLabelInPlural('Saisons')
             ->setDefaultSort(['startDate' => 'DESC']);
     }
 
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id')->hideOnForm();
-        yield DateField::new('startDate', 'Start Date');
-        yield DateField::new('endDate', 'End Date');
+        yield DateField::new('startDate', 'Date de début');
+        yield DateField::new('endDate', 'Date de fin');
     }
 }

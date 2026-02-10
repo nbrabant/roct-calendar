@@ -9,6 +9,7 @@ use App\Repository\EventRepository;
 use App\Repository\PlayerCategoryRepository;
 use App\Repository\SeasonRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
@@ -51,18 +52,26 @@ class DashboardController extends AbstractDashboardController
     {
         return Dashboard::new()
             ->setTitle('Roct Calendar')
-            ->setFaviconPath('favicon.ico');
+            ->setFaviconPath('favicon.ico')
+            ->setLocales(['fr']);
+    }
+
+    public function configureCrud(): Crud
+    {
+        return Crud::new()
+            ->setDateFormat('dd/MM/yyyy')
+            ->setDateTimeFormat('dd/MM/yyyy HH:mm');
     }
 
     public function configureMenuItems(): iterable
     {
-        yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
+        yield MenuItem::linkToDashboard('Tableau de bord', 'fa fa-home');
         yield MenuItem::section();
-        yield MenuItem::linkToCrud('Events', 'fa fa-futbol', Event::class);
+        yield MenuItem::linkToCrud('Événements', 'fa fa-futbol', Event::class);
         yield MenuItem::section();
-        yield MenuItem::linkToCrud('Player Categories', 'fa fa-tags', PlayerCategory::class);
-        yield MenuItem::linkToCrud('Seasons', 'fa fa-calendar', Season::class);
+        yield MenuItem::linkToCrud('Catégories de joueurs', 'fa fa-tags', PlayerCategory::class);
+        yield MenuItem::linkToCrud('Saisons', 'fa fa-calendar', Season::class);
         yield MenuItem::section();
-        yield MenuItem::linkToLogout('Logout', 'fa fa-sign-out');
+        yield MenuItem::linkToLogout('Déconnexion', 'fa fa-sign-out');
     }
 }

@@ -26,15 +26,15 @@ class EventCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('Event')
-            ->setEntityLabelInPlural('Events')
+            ->setEntityLabelInSingular('Événement')
+            ->setEntityLabelInPlural('Événements')
             ->setSearchFields(['name', 'description'])
             ->setDefaultSort(['eventDate' => 'DESC']);
     }
 
     public function configureActions(Actions $actions): Actions
     {
-        $importAction = Action::new('importEvents', 'Import', 'fa fa-file-import')
+        $importAction = Action::new('importEvents', 'Importer', 'fa fa-file-import')
             ->linkToRoute('admin_event_import_upload')
             ->createAsGlobalAction();
 
@@ -44,17 +44,17 @@ class EventCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id')->hideOnForm();
-        yield TextField::new('name');
-        yield AssociationField::new('season');
-        yield TextareaField::new('description')->hideOnIndex();
-        yield ChoiceField::new('type')
+        yield TextField::new('name', 'Nom');
+        yield AssociationField::new('season', 'Saison');
+        yield TextareaField::new('description', 'Description')->hideOnIndex();
+        yield ChoiceField::new('type', 'Type')
             ->setChoices(array_combine(
                 array_map(fn (EventType $t) => $t->label(), EventType::cases()),
                 EventType::cases(),
             ));
-        yield DateField::new('eventDate', 'Event Date');
-        yield ArrayField::new('categories')->onlyOnIndex();
-        yield AssociationField::new('categories')
+        yield DateField::new('eventDate', 'Date');
+        yield ArrayField::new('categories', 'Catégories')->onlyOnIndex();
+        yield AssociationField::new('categories', 'Catégories')
             ->setFormTypeOption('by_reference', false)
             ->onlyOnForms();
     }

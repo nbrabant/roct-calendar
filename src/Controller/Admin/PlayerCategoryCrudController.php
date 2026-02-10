@@ -18,15 +18,15 @@ class PlayerCategoryCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('Player Category')
-            ->setEntityLabelInPlural('Player Categories')
+            ->setEntityLabelInSingular('Catégorie de joueurs')
+            ->setEntityLabelInPlural('Catégories de joueurs')
             ->setSearchFields(['code', 'description']);
     }
 
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id')->hideOnForm();
-        yield TextField::new('code');
-        yield TextField::new('description');
+        yield TextField::new('code', 'Code');
+        yield TextField::new('description', 'Description');
     }
 }
