@@ -18,7 +18,7 @@
                             {% for category in categories %}
                                 <label class="inline-flex items-center gap-1.5 cursor-pointer">
                                     <input type="checkbox" name="categories[]" value="{{ category.id }}"
-                                           class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                           class="rounded border-gray-300 text-red-600 focus:ring-red-500"
                                            {{ category.id in selectedCategories ? 'checked' }}>
                                     <span class="text-sm text-gray-700">{{ category.code }}</span>
                                 </label>
@@ -41,11 +41,11 @@
 
                 <div class="flex gap-2">
                     <button type="submit"
-                            class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                            class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
                         Filtrer
                     </button>
                     <a href="{{ path('app_export_pdf', app.request.query.all) }}"
-                       class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors">
+                       class="px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors">
                         Exporter PDF
                     </a>
                     {% if selectedCategories or dateFrom or dateTo %}
