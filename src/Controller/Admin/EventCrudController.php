@@ -8,6 +8,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
@@ -52,7 +53,9 @@ class EventCrudController extends AbstractCrudController
                 EventType::cases(),
             ));
         yield DateField::new('eventDate', 'Event Date');
+        yield ArrayField::new('categories')->onlyOnIndex();
         yield AssociationField::new('categories')
-            ->setFormTypeOption('by_reference', false);
+            ->setFormTypeOption('by_reference', false)
+            ->onlyOnForms();
     }
 }

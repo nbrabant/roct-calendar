@@ -15,8 +15,10 @@
         "symfony/dotenv": "8.0.*",
         "symfony/flex": "^2",
         "symfony/framework-bundle": "8.0.*",
+        "symfony/mailer": "8.0.*",
         "symfony/runtime": "8.0.*",
-        "symfony/yaml": "8.0.*"
+        "symfony/yaml": "8.0.*",
+        "symfonycasts/reset-password-bundle": "^1.24"
     },
     "config": {
         "allow-plugins": {
